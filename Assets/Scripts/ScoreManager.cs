@@ -39,7 +39,7 @@ public class ScoreManager : MonoBehaviour
     /// </summary>
     void UpdateScoreDisplay()
     {
-        scoreText.text = "Score: " + score.ToString(); // Update the UI with the current score
+        scoreText.text = "" + score.ToString(); // Update the UI with the current score
     }
 
     /// <summary>

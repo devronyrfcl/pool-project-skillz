@@ -6,6 +6,9 @@ public class TablePocketManager : MonoBehaviour
     [Header("References")]
     public ScoreManager scoreManager; // Reference to the ScoreManager to update score
     public CueBallController cueBallController; // Reference to the CueBallController to reset the cue ball
+    public AudioClip BallInPocketAudio; //Sound of ball fall on pocket
+    public AudioSource audioSource; // Audio source for playing sounds
+    public TextEffect TextEffect; //Refernce of Text Effect script
 
     // Function that gets called when an object enters the pocket (trigger zone)
     void OnTriggerEnter(Collider other)
@@ -15,12 +18,16 @@ public class TablePocketManager : MonoBehaviour
         {
             // Call the function to add score
             BallInPocket(other);
+            audioSource.PlayOneShot(BallInPocketAudio);
+            TextEffect.TriggerEffect();
         }
         // Check if the object tagged as "CueBall" enters the pocket
         else if (other.CompareTag("CueBall"))
         {
             // Call the function for cue ball (empty for now)
             CueBallInPocket(other);
+            audioSource.PlayOneShot(BallInPocketAudio);
+            
         }
     }
 

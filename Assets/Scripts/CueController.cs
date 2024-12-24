@@ -10,6 +10,8 @@ public class CueController : MonoBehaviour
     public Slider powerSlider; // The slider to adjust shot power
     public CueBallController cueBall; // Reference to the cue ball controller
     public Camera mainCamera; // Main camera for raycasting
+    public AudioClip CueHitSound; //Cue Hit Sound
+    public AudioSource audioSource; // Audio source for playing sounds
 
     [Header("Settings")]
     public float maxPower = 1000f; // Maximum power for the shot
@@ -29,7 +31,7 @@ public class CueController : MonoBehaviour
         stickInitialPosition = stickObject.localPosition;
 
         // Initialize the power slider
-        powerSlider.value = 0;
+        powerSlider.value = 1; // Start at maximum power (slider reversed)
         powerSlider.onValueChanged.AddListener(OnPowerChanged);
 
         AllowStickToRotate = true;
@@ -40,12 +42,14 @@ public class CueController : MonoBehaviour
     {
         HandleCueStickRotation();
         HandlePowerSlider();
-        FollowCueBallWhenStopped();  // Call this function every frame
-        
+        FollowCueBallWhenStopped(); // Call this function every frame
     }
-    private void OnCollisionStay(Collision collsion){
-        Debug.Log(collsion.gameObject.name + "cueBall");
+
+    private void OnCollisionStay(Collision collision)
+    {
+        Debug.Log(collision.gameObject.name + " cueBall");
     }
+
     /// <summary>
     /// Rotates the cue stick based on raycast from the camera.
     /// </summary>
@@ -95,9 +99,9 @@ public class CueController : MonoBehaviour
             isAdjustingPower = false;
         }
 
-        if (!isAdjustingPower && powerSlider.value > 0) // Reset the slider and stickObject
+        if (!isAdjustingPower && powerSlider.value < 1) // Reset the slider and stickObject
         {
-            powerSlider.value = Mathf.MoveTowards(powerSlider.value, 0, springSpeed * Time.deltaTime);
+            powerSlider.value = Mathf.MoveTowards(powerSlider.value, 1, springSpeed * Time.deltaTime);
             AllowStickToRotate = false;
         }
     }
@@ -109,8 +113,9 @@ public class CueController : MonoBehaviour
     void OnPowerChanged(float value)
     {
         AllowStickToRotate = false;
-        // Move the stickObject backward based on the slider value
-        stickObject.localPosition = stickInitialPosition - new Vector3(0, 0, value * stickMoveDistance);
+        // Move the stickObject backward based on the reversed slider value
+        float adjustedValue = 1 - value; // Reverse the slider value
+        stickObject.localPosition = stickInitialPosition - new Vector3(0, 0, adjustedValue * stickMoveDistance);
     }
 
     /// <summary>
@@ -121,11 +126,14 @@ public class CueController : MonoBehaviour
         // Disable the slider after the shot
         powerSlider.interactable = false;
 
-        float force = powerSlider.value * maxPower;
+        float force = (1 - powerSlider.value) * maxPower; // Reverse the slider value for power
         Vector3 shootDirection = transform.forward;
 
         // Apply force to the cue ball
         cueBall.Shoot(shootDirection, force);
+
+        //Play Cue Hit sound
+        audioSource.PlayOneShot(CueHitSound);
 
         // Store the cue ball's position when the shot is made
         cueBallStartPos = cueBall.transform.position;
@@ -160,11 +168,4 @@ public class CueController : MonoBehaviour
             powerSlider.interactable = true; // Make the slider interactable again
         }
     }
-   
-        
-     
-
-
-        
-    
 }

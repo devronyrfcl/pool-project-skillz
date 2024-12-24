@@ -8,6 +8,7 @@ TagManager:
   - Table
   - Table Pocket
   - CueBall
+  - TableBorder
   layers:
   - Default
   - TransparentFX
